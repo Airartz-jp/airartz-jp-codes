@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>えがけトーク BBS-JP</title>
+    <style>
+        .green-text {
+            color: green;
+        }
+        .reply-to {
+            color: gray;
+        }
+        #comment-section {
+            height: 600px;
+            width: 80%;
+            overflow-y: scroll;
+        }
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="center">
+        <h1>BBS-JP</h1>
+        <div id="comment-section">
+            <!-- コメントはここに動的に追加されます -->
+        </div>
+        <div class="commentspece">
+        <button onclick="showPreviousPage()">前のページ</button>
+        <button onclick="showNextPage()">次のページ</button>
+        <input type="text" id="name-input" placeholder="名前を入力">
+        <input type="text" id="comment-input" placeholder="コメントを入力">
+        <input type="text" id="reply-to-input" placeholder="返信先の番号を入力">
+        <button onclick="addComment()">コメントを追加</button>
+        </div>
+    </div>
+<!--ここからJavascript-->
+    <script>
+        let commentCount = 0;
+        let currentPage = 0;
+        const commentsPerPage = 300;
+        const comments = [];
+
+        function addComment() {
+            commentCount++;
+            const name = document.getElementById('name-input').value;
+            const comment = document.getElementById('comment-input').value;
+            const replyTo = document.getElementById('reply-to-input').value;
+            const id = Math.random().toString(36).substring(2, 15);
+
+            let commentText = `<p><span class="green-text">${commentCount}. ${name} (ID: ${id})</span>: ${comment}</p>`;
+            if (replyTo) {
+                commentText = `<p><span class="green-text">${commentCount}. ${name} (ID: ${id})</span>: <span class="reply-to" onclick="showReply(${replyTo})">>>${replyTo}</span> ${comment}</p>`;
+            }
+
+            comments.push({id: commentCount, text: commentText});
+            if (commentCount <= commentsPerPage) {
+                showComments();
+            }
+        }
+
+        function showComments() {
+            const commentSection = document.getElementById('comment-section');
+            commentSection.innerHTML = comments.slice(currentPage * commentsPerPage, (currentPage + 1) * commentsPerPage).map(comment => comment.text).join('');
+        }
+
+        function showNextPage() {
+            if ((currentPage + 1) * commentsPerPage < commentCount) {
+                currentPage++;
+                showComments();
+            }
+        }
+
+        function showPreviousPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                showComments();
+            }
+        }
+
+        function showReply(id) {
+            const comment = comments.find(comment => comment.id == id);
+            if (comment) {
+                const commentText = comment.text.replace(/<[^>]*>?/gm, ''); // HTMLタグを削除
+                alert(commentText);
+            } else {
+                alert('返信先のコメントが見つかりませんでした。');
+            }
+        }
+    </script>
+</body>
+</html>
